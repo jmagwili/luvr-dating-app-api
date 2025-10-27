@@ -4,6 +4,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { databaseInit } from './database.js';
 
+//ROUTES IMPORTS WOULD GO HERE
+import userRouter from './routes/user.route.js';
+
 // Load environment variables from .env file
 dotenv.config();
 
@@ -17,15 +20,8 @@ const PORT = process.env.PORT || 3001;
 app.use(bodyParser.json());
 app.use(cors());
 
-// Sample route
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
-});
-
-app.post('/', (req, res) => {
-    const receivedData = req.body.data;
-    res.json({ message: 'Data received successfully', data: receivedData });
-});
+// Routes
+app.use('/users', userRouter);
 
 // Start server
 app.listen(PORT, () => {
