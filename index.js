@@ -18,6 +18,11 @@ app.get('/', (req, res) => {
   res.send('Hello, World!');
 });
 
+app.post('/', (req, res) => {
+    const receivedData = req.body;
+    res.json({ message: 'Data received successfully', data: receivedData });
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
