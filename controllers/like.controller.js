@@ -1,4 +1,4 @@
-import likeModel from "../models/likes";
+import likeModel from "../models/likes.js";
 
 export const likeUser = async (req, res) => {
     try {

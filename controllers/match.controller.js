@@ -1,4 +1,4 @@
-import matchModel from "../models/matches";
+import matchModel from "../models/matches.js";
 
 export const getMatchById = async (req, res) => {
     try {
