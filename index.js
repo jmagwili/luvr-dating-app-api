@@ -19,7 +19,7 @@ app.get('/', (req, res) => {
 });
 
 app.post('/', (req, res) => {
-    const receivedData = req.body;
+    const receivedData = req.body.data;
     res.json({ message: 'Data received successfully', data: receivedData });
 });
 
