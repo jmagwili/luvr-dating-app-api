@@ -1,4 +1,5 @@
 import chatModel from "../models/chats.js";
+import mongoose from "mongoose";
 
 
 export const getChatByUserId = async (req, res) => {
