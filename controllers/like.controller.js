@@ -1,4 +1,5 @@
 import likeModel from "../models/likes.js";
+import matchModel from "../models/matches.js";
 
 export const likeUser = async (req, res) => {
     try {
@@ -6,6 +7,14 @@ export const likeUser = async (req, res) => {
         const newLike = new likeModel({ liker_id, liked_id });
         
         await newLike.save();
+
+        // Check for mutual like to create a match
+        const mutualLike = await likeModel.findOne({ liker_id: liked_id, liked_id: liker_id });
+        
+        if (mutualLike) {
+            const newMatch = new matchModel({ user1_id: liker_id, user2_id: liked_id });
+            await newMatch.save();
+        }
 
         res.status(201).json({ message: "User liked successfully", like: newLike });
     } catch (error) {
