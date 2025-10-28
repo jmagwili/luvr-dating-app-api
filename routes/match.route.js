@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { getMatchById, createMatch } from "../controllers/match.controller.js";
+import { getMatchById, createMatch, getAllMatches } from "../controllers/match.controller.js";
 
 const matchRouter = Router();
 
-matchRouter.get("/:id", getMatchById)
+matchRouter.get("/:id", getAllMatches)
 matchRouter.post("/", createMatch)
 
 export default matchRouter;

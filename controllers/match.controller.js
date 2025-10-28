@@ -26,3 +26,26 @@ export const createMatch = async (req, res) => {
         res.status(500).json({ message: "Server error", error });
     }
 };
+
+export const getAllMatches = async (req, res) => {
+    try {
+        const matches = await matchModel.find({
+            $or: [
+                { user1_id: req.params.id },
+                { user2_id: req.params.id }
+            ],
+        });
+
+        const structuredMatches = matches.map(match => {
+            const matchedUserId = match.user1_id.toString() === req.params.id ? match.user2_id : match.user1_id;
+            return {
+                match_id: match._id,
+                user_id: matchedUserId
+            };
+        });
+
+        res.status(200).json(structuredMatches);
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+};
