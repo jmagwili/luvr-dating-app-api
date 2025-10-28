@@ -25,7 +25,7 @@ const PORT = process.env.PORT || 3001;
 app.use(bodyParser.json());
 app.use(
   cors({
-    origin: "*", // or specify frontend origin e.g. "https://myapp.vercel.app"
+    origin: "http://localhost:3000", // or specify frontend origin e.g. "https://myapp.vercel.app"
   })
 );
 
@@ -40,7 +40,7 @@ app.use("/messages", messageRouter);
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "*", // allow your frontend domain
+    origin: "http://localhost:3000", // allow your frontend domain
     methods: ["GET", "POST"],
   },
 });
