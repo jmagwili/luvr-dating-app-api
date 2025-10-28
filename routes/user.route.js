@@ -6,7 +6,7 @@ const userRouter = Router();
 userRouter.get("/", getUsers);
 userRouter.get("/:id", getUserById);
 userRouter.post("/", createUser);
-userRouter.post("/update/:id", updateUser);
+userRouter.patch("/:id", updateUser);
 
 export default userRouter;
 
