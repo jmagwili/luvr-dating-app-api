@@ -49,3 +49,18 @@ export const getAllMatches = async (req, res) => {
         res.status(500).json({ message: "Server error", error });
     }
 };
+
+export const deleteMatch = async (req, res) => {
+    try {
+        const matchId = req.params.id;
+        const deletedMatch = await matchModel.findByIdAndDelete(matchId);
+        
+        if (!deletedMatch) {
+            return res.status(404).json({ message: "Match not found" });
+        }
+        
+        res.status(200).json({ message: "Match deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+};
