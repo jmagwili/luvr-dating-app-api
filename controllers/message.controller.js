@@ -64,3 +64,20 @@ export const createMessage = async (req, res) => {
         console.error(error);
     }
 };
+
+export const updateReadAt = async (req, res) => {
+    try {
+        const { chatId, userId } = req.params;
+        const currentTime = new Date();
+        const result = await messageModel.updateMany(
+            { chat_id: chatId, sender_id: { $ne: userId }, read_at: { $exists: false } },
+            { $set: { read_at: currentTime } }
+        );
+
+        io.to(userId).emit("messages_read", { chatId, readAt: currentTime });
+
+        res.status(200).json({ message: "Messages updated", modifiedCount: result.modifiedCount });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+};
