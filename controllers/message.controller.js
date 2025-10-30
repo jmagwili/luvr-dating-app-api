@@ -4,7 +4,7 @@ import matchModel from "../models/matches.js";
 import notificationModel from "../models/notifications.js";
 import userModel from "../models/users.js";
 
-import { io } from "../index.js";
+import { io, userActiveChats } from "../index.js";
 
 export const getMessagesByChatId = async (req, res) => {
     try {
@@ -34,17 +34,29 @@ export const createMessage = async (req, res) => {
         const senderUser = await userModel.findById(sender_id);
         const senderName = `${senderUser.first_name} ${senderUser.last_name}`;
 
-        // Create a notification for the recipient
-        const newNotification = new notificationModel({
-            user_id: recipientId,
-            type: "message",
-            message: `New message from ${recipientName}: ${content}`
+        // Check if recipient is viewing this chat
+        const activeChat = userActiveChats.get(recipientId.toString());
+        const isRecipientViewing = activeChat === chat_id.toString();
+
+        // Send the message in real time
+        io.to(recipientId.toString()).emit("new_message", {
+        message: savedMessage.content,
+        sender: senderName,
         });
 
-        await newNotification.save();
+        // Only create a notification if the recipient is NOT viewing the chat
+        if (!isRecipientViewing) {
+            const newNotification = new notificationModel({
+                user_id: recipientId,
+                type: "message",
+                message: `New message from ${senderName}: ${content}`,
+            });
+            await newNotification.save();
 
-        // Emit a Socket.IO event to the recipient
-        io.to(recipientId.toString()).emit("new_message", { message: savedMessage.content, sender:  senderName});    
+            io.to(recipientId.toString()).emit("new_notification", {
+                message: `New message from ${senderName}: ${content}`,
+            });
+        }  
 
         res.status(201).json(savedMessage);
     } catch (error) {
