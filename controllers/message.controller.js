@@ -28,7 +28,7 @@ export const createMessage = async (req, res) => {
         // Fetch recipient ans sender information
         const chat = await chatModel.findById(chat_id);
         const match = await matchModel.findById(chat.match_id);
-        const recipientId = match.user1_id === sender_id ? match.user2_id : match.user1_id;
+        const recipientId = match.user1_id.toString() === sender_id ? match.user2_id : match.user1_id;
         const recipientUser = await userModel.findById(recipientId);
         const recipientName = `${recipientUser.first_name} ${recipientUser.last_name}`;
         const senderUser = await userModel.findById(sender_id);
