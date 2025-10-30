@@ -23,6 +23,29 @@ export const likeUser = async (req, res) => {
     }
 };
 
+export const unlikeUser = async (req, res) => {
+    try {
+        const { liker_id, liked_id } = req.body;
+        const deletedLike = await likeModel.findOneAndDelete({ liker_id, liked_id });
+
+        if (!deletedLike) {
+            return res.status(404).json({ message: "Like not found" });
+        }
+
+        // Also remove match if it exists
+        await matchModel.findOneAndDelete({
+            $or: [
+                { user1_id: liker_id, user2_id: liked_id },
+                { user1_id: liked_id, user2_id: liker_id }
+            ]
+        });
+
+        res.status(200).json({ message: "User unliked successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};
+
 export const checkLike = async (req, res) => {
     try {
         const { liker, liked } = req.params;
