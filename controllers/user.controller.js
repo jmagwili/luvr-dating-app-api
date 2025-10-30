@@ -1,4 +1,6 @@
 import userModel from "../models/users.js";
+import likeModel from "../models/likes.js";
+import skipModel from "../models/skips.js";
 import Fuse from "fuse.js";
 
 export const createUser = async (req, res) => {
@@ -73,7 +75,6 @@ export const queryUser = async (req, res) => {
   }
 };
 
-
 export const getUsers = async (req, res) => {
     try {
         const users = await userModel.find();
@@ -94,5 +95,19 @@ export const updateUser = async (req, res) => {
         res.status(200).json(updatedUser);
     } catch (error) {
         res.status(500).json({ message: "Error updating user", error: error.message });
+    }
+};
+
+export const getUnviewedProfiles = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const likedUsers = await likeModel.find({ liker_id: userId }).select("liked_id -_id");
+        const skippedUsers = await skipModel.find({ skipper_id: userId }).select("skipped_id -_id");
+        const excludedUserIds = [...likedUsers.map(like => like.liked_id), ...skippedUsers.map(skip => skip.skipped_id), userId];
+
+        const unviewedProfiles = await userModel.find({ _id: { $nin: excludedUserIds } }).limit(10);
+        res.status(200).json(unviewedProfiles);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching unviewed profiles", error: error.message });
     }
 };
