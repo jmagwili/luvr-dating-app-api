@@ -13,6 +13,7 @@ import swipeRouter from "./routes/swipe.route.js";
 import matchRouter from "./routes/match.route.js";
 import chatRouter from "./routes/chat.route.js";
 import messageRouter from "./routes/message.route.js";
+import notificationRouter from "./routes/notification.route.js";
 
 dotenv.config();
 
@@ -75,6 +76,7 @@ app.use("/swipes", swipeRouter);
 app.use("/matches", matchRouter);
 app.use("/chats", chatRouter);
 app.use("/messages", messageRouter);
+app.use("/notifications", notificationRouter);
 
 export { io, userActiveChats };
 
