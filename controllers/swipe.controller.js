@@ -1,6 +1,10 @@
 import likeModel from "../models/likes.js";
 import matchModel from "../models/matches.js";
 import skipModel from "../models/skips.js";
+import notificationModel from "../models/notifications.js";
+import userModel from "../models/users.js";
+
+import { io } from "../index.js";
 
 export const likeUser = async (req, res) => {
     try {
@@ -15,6 +19,31 @@ export const likeUser = async (req, res) => {
         if (mutualLike) {
             const newMatch = new matchModel({ user1_id: liker_id, user2_id: liked_id });
             await newMatch.save();
+
+            const liker = await userModel.findById(liker_id);
+            const liked = await userModel.findById(liked_id);
+
+            const likerName = `${liker.first_name} ${liker.last_name}`;
+            const likedName = `${liked.first_name} ${liked.last_name}`;
+
+            // Create notifications for both users
+            const notificationForLiker = new notificationModel({
+                user_id: liker_id,
+                type: "match",
+                message: `You have a new match with ${likedName}!`
+            });
+            const notificationForLiked = new notificationModel({
+                user_id: liked_id,
+                type: "match",
+                message: `You have a new match with ${likerName}!`
+            });
+
+            await notificationForLiker.save();
+            await notificationForLiked.save();
+
+            // Emit Socket.IO events to both users
+            io.to(liker_id.toString()).emit("new_match", { match: newMatch, message: notificationForLiker.message });
+            io.to(liked_id.toString()).emit("new_match", { match: newMatch, message: notificationForLiked.message });
         }
 
         res.status(201).json({ message: "User liked successfully", like: newLike });
