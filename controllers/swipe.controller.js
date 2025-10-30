@@ -1,5 +1,6 @@
 import likeModel from "../models/likes.js";
 import matchModel from "../models/matches.js";
+import skipModel from "../models/skips.js";
 
 export const likeUser = async (req, res) => {
     try {
@@ -30,6 +31,29 @@ export const checkLike = async (req, res) => {
             return res.status(200).json({ liked: true });
         }
         res.status(200).json({ liked: false });
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};
+
+export const getLikesForUser = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const likes = await likeModel.find({ liked_id: userId });
+        res.status(200).json(likes);
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};
+
+export const skipUser = async (req, res) => {
+    try {
+        const { skipper_id, skipped_id } = req.body;
+        const newSkip = new skipModel({ skipper_id, skipped_id });
+        
+        await newSkip.save();
+        
+        res.status(201).json({ message: "User skipped successfully", skip: newSkip });
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message });
     }

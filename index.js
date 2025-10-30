@@ -8,7 +8,7 @@ import { databaseInit } from "./database.js";
 
 // ROUTES
 import userRouter from "./routes/user.route.js";
-import likeRouter from "./routes/like.route.js";
+import swipeRouter from "./routes/swipe.route.js";
 import matchRouter from "./routes/match.route.js";
 import chatRouter from "./routes/chat.route.js";
 import messageRouter from "./routes/message.route.js";
@@ -31,7 +31,7 @@ app.use(
 
 // Routes
 app.use("/users", userRouter);
-app.use("/likes", likeRouter);
+app.use("/swipes", swipeRouter);
 app.use("/matches", matchRouter);
 app.use("/chats", chatRouter);
 app.use("/messages", messageRouter);
