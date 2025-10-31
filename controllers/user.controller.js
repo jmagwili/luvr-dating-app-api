@@ -106,7 +106,16 @@ export const getUnviewedProfiles = async (req, res) => {
         const excludedUserIds = [...likedUsers.map(like => like.liked_id), ...skippedUsers.map(skip => skip.skipped_id), userId];
 
         const unviewedProfiles = await userModel.find({ _id: { $nin: excludedUserIds } }).limit(10);
-        res.status(200).json(unviewedProfiles);
+
+        const structuredProfiles = unviewedProfiles.map(profile => ({
+            id: profile._id,
+            name: `${profile.first_name} ${profile.last_name}`,
+            image: profile.image_url,
+            bio: profile.bio,
+            age: Math.floor((Date.now() - new Date(profile.birthdate).getTime()) / (1000 * 60 * 60 * 24 * 365.25))
+        }));
+
+        res.status(200).json(structuredProfiles);
     } catch (error) {
         res.status(500).json({ message: "Error fetching unviewed profiles", error: error.message });
     }
