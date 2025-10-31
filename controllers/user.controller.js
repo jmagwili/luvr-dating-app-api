@@ -99,24 +99,37 @@ export const updateUser = async (req, res) => {
 };
 
 export const getUnviewedProfiles = async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const likedUsers = await likeModel.find({ liker_id: userId }).select("liked_id -_id");
-        const skippedUsers = await skipModel.find({ skipper_id: userId }).select("skipped_id -_id");
-        const excludedUserIds = [...likedUsers.map(like => like.liked_id), ...skippedUsers.map(skip => skip.skipped_id), userId];
+  try {
+    const { userId } = req.params;
+    const excludeParam = req.query.exclude || ""; 
+    const limit = parseInt(req.query.limit) || 1; // default 1 if not provided
 
-        const unviewedProfiles = await userModel.find({ _id: { $nin: excludedUserIds } }).limit(10);
+    const excludeFromClient = excludeParam.split(",").filter(Boolean);
 
-        const structuredProfiles = unviewedProfiles.map(profile => ({
-            id: profile._id,
-            name: `${profile.first_name} ${profile.last_name}`,
-            image: profile.image_url,
-            bio: profile.bio,
-            age: Math.floor((Date.now() - new Date(profile.birthdate).getTime()) / (1000 * 60 * 60 * 24 * 365.25))
-        }));
+    const likedUsers = await likeModel.find({ liker_id: userId }).select("liked_id -_id");
+    const skippedUsers = await skipModel.find({ skipper_id: userId }).select("skipped_id -_id");
 
-        res.status(200).json(structuredProfiles);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching unviewed profiles", error: error.message });
-    }
+    const excludedUserIds = [
+      ...likedUsers.map(like => like.liked_id.toString()),
+      ...skippedUsers.map(skip => skip.skipped_id.toString()),
+      userId,
+      ...excludeFromClient,
+    ];
+
+    const unviewedProfiles = await userModel
+      .find({ _id: { $nin: excludedUserIds } })
+      .limit(limit);
+
+    const structuredProfiles = unviewedProfiles.map(profile => ({
+      id: profile._id,
+      name: `${profile.first_name} ${profile.last_name}`,
+      image: profile.image_url,
+      bio: profile.bio,
+      age: Math.floor((Date.now() - new Date(profile.birthdate).getTime()) / (1000 * 60 * 60 * 24 * 365.25))
+    }));
+
+    res.status(200).json(structuredProfiles);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching unviewed profiles", error: error.message });
+  }
 };
