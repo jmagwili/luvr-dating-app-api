@@ -1,4 +1,5 @@
 import matchModel from "../models/matches.js";
+import userModel from "../models/users.js";
 
 export const getMatchById = async (req, res) => {
     try {
@@ -36,11 +37,31 @@ export const getAllMatches = async (req, res) => {
             ],
         });
 
+        // collect the matched user ids (as strings)
+        const matchedUserIds = matches.map(match =>
+            match.user1_id.toString() === req.params.id ? match.user2_id.toString() : match.user1_id.toString()
+        );
+
+        // fetch unique users in one query
+        const uniqueUserIds = [...new Set(matchedUserIds)];
+        const users = await userModel.find({ _id: { $in: uniqueUserIds } })
+            .select("image_url first_name last_name bio birthdate");
+
+        const usersById = users.reduce((acc, u) => {
+            acc[u._id.toString()] = u;
+            return acc;
+        }, {});
+
         const structuredMatches = matches.map(match => {
-            const matchedUserId = match.user1_id.toString() === req.params.id ? match.user2_id : match.user1_id;
+            const matchedUserId = match.user1_id.toString() === req.params.id ? match.user2_id.toString() : match.user1_id.toString();
+            const user = usersById[matchedUserId] || {};
             return {
                 match_id: match._id,
-                user_id: matchedUserId
+                user_id: matchedUserId,
+                image_url: user.image_url || null,
+                name: `${user.first_name} ${user.last_name}` || null,
+                bio: user.bio || null,
+                age: Math.floor((Date.now() - new Date(user.birthdate).getTime()) / (1000 * 60 * 60 * 24 * 365.25)) ?? null
             };
         });
 
