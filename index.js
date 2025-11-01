@@ -22,7 +22,7 @@ databaseInit();
 
 // --- EXPRESS AND SOCKET SERVER SETUP ---
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
@@ -89,6 +89,6 @@ app.use("/notifications", notificationRouter);
 export { io, userActiveChats };
 
 // --- Start Server ---
-httpServer.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+httpServer.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on 0.0.0.0:${PORT}`);
 });
