@@ -44,6 +44,11 @@ export const createMessage = async (req, res) => {
         sender: senderName,
         });
 
+        console.log(`Emitting new_message to ${recipientId}:`, {
+            message: savedMessage.content,
+            sender: senderName,
+        });
+
         // Only create a notification if the recipient is NOT viewing the chat
         if (!isRecipientViewing) {
             const newNotification = new notificationModel({

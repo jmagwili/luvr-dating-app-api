@@ -26,7 +26,7 @@ const PORT = process.env.PORT || 3001;
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:3000", // allow your frontend domain
+    origin: ["http://localhost:3000", "http://192.168.1.4:3000"], // allow your frontend domain
     methods: ["GET", "POST", "DELETE", "PATCH" ],
   },
 });
@@ -35,7 +35,7 @@ const io = new Server(httpServer, {
 app.use(bodyParser.json());
 app.use(
   cors({
-    origin: "http://localhost:3000", // or specify frontend origin e.g. "https://myapp.vercel.app"
+    origin: ["http://localhost:3000", "http://192.168.1.4:3000"] // or specify frontend origin e.g. "https://myapp.vercel.app"
   })
 );
 
@@ -45,6 +45,14 @@ const userActiveChats = new Map();
 // 👇 Socket.IO setup
 io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
+
+  const userId = socket.handshake.query.userId;
+  console.log("Client connected:", userId);
+
+  if (userId) {
+    socket.join(userId.toString());
+    console.log(`User ${userId} joined room ${userId}`);
+  }
 
   // User joins a chat
   socket.on("join_chat", ({ userId, chatId }) => {
