@@ -1,5 +1,7 @@
 import matchModel from "../models/matches.js";
 import userModel from "../models/users.js";
+import chatModel from "../models/chats.js";
+import messageModel from "../models/messages.js";
 
 export const getMatchById = async (req, res) => {
     try {
@@ -75,12 +77,24 @@ export const deleteMatch = async (req, res) => {
     try {
         const matchId = req.params.id;
         const deletedMatch = await matchModel.findByIdAndDelete(matchId);
-        
+
         if (!deletedMatch) {
             return res.status(404).json({ message: "Match not found" });
         }
-        
-        res.status(200).json({ message: "Match deleted successfully" });
+
+        // find chats associated with this match id so we can delete their messages
+        const chats = await chatModel.find({ match_id: matchId });
+        const chatIds = chats.map(c => c._id);
+
+        // delete messages associated with those chats
+        if (chatIds.length > 0) {
+            await messageModel.deleteMany({ chat_id: { $in: chatIds } });
+        }
+
+        // delete any chat(s) associated with this match id
+        await chatModel.deleteMany({ match_id: matchId });
+
+        res.status(200).json({ message: "Match, associated chats and messages deleted successfully" });
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
     }
