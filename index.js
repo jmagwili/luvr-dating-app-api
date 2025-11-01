@@ -26,7 +26,7 @@ const PORT = process.env.PORT || 3000;
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:3000", "http://192.168.1.4:3000"], // allow your frontend domain
+    origin: ["http://localhost:3000", "http://192.168.1.4:3000", "https://luvr-dating-app.vercel.app/"], // allow your frontend domain
     methods: ["GET", "POST", "DELETE", "PATCH" ],
   },
 });
@@ -35,7 +35,7 @@ const io = new Server(httpServer, {
 app.use(bodyParser.json());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://192.168.1.4:3000"] // or specify frontend origin e.g. "https://myapp.vercel.app"
+    origin: ["http://localhost:3000", "http://192.168.1.4:3000", "https://luvr-dating-app.vercel.app/"] // or specify frontend origin e.g. "https://myapp.vercel.app"
   })
 );
 
